@@ -82,9 +82,16 @@
   function init() {
     var params = parseQueryString();
 
+    var dataAttrDelay = document
+      .querySelector('.slides')
+      .getAttribute('data-slide-delay');
+
+
+    dataAttrDelay = parseInt(dataAttrDelay, 10);
+
     // setup vars
     slideToShow = parseInt(params.slideToShow, 10) || 0;
-    delay = parseInt(params.delay, 10) || 1000;
+    delay = parseInt(params.delay, 10) || dataAttrDelay || 1000;
     currentSlideNum = 0;  // currently active slide
     slides = document.querySelectorAll('.slides .slide');
 
