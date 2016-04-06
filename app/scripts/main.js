@@ -1,40 +1,49 @@
 'use strict';
 
-function parseQueryString() {
-  var qs = document.location.search;
-  var obj = {};
-
-  qs.substring(1) // drop ? at beginning
-    .split('&')
-    .forEach((pair) => {
-      var keyVal = pair.split('=');
-      if (keyVal.length === 2) {
-        // pair of values
-        // &slide=2
-        var key = keyVal[0];
-        var val = keyVal[1];
-        obj[key] = val;
-      } else if (keyVal.length === 1) {
-        //singleton
-        // &loop === &loop=true
-        obj[keyVal] = true;
-      }
-    });
-    return obj;
-}
-
 (function() {
-  var params;
   var slideToShow;
   var delay;
-  var activeSlideNum;
+  var currentSlideNum;
   var slides;
 
+
+  // parses a query string into an object
+  // For example, if the current URL is:
+  // http://localhost?slideToShow=3&delay=1000
+  // becomes
+  // parseQueryString() will give you
+  // { slideToShow: '3', delay: '1000' }
+  function parseQueryString() {
+    var qs = document.location.search;
+    var obj = {};
+
+    if (!qs) {
+      return obj;
+    }
+
+    qs.substring(1) // drop ? at beginning
+      .split('&')
+      .forEach((pair) => {
+        var keyVal = pair.split('=');
+        if (keyVal.length === 2) {
+          // pair of values
+          // &slide=2
+          var key = keyVal[0];
+          var val = keyVal[1];
+          obj[key] = val;
+        } else if (keyVal.length === 1) {
+          //singleton
+          // &loop === &loop=true
+          obj[keyVal] = true;
+        }
+      });
+      return obj;
+  }
+
+
   function nextSlide() {
-    var prevSlideNum = activeSlideNum;
-    activeSlideNum = (activeSlideNum + 1) % slides.length;
-    console.log(activeSlideNum);
-    console.log(Date.now());
+    var prevSlideNum = currentSlideNum;
+    currentSlideNum = (currentSlideNum + 1) % slides.length;
 
     // if previous slide was slide to show,
     // remove is-active class
@@ -44,8 +53,8 @@ function parseQueryString() {
         .remove('is-active');
     }
 
-    if (activeSlideNum === slideToShow) {
-      slides[activeSlideNum]
+    if (currentSlideNum === slideToShow) {
+      slides[currentSlideNum]
         .classList
         .add('is-active');
     }
@@ -53,7 +62,7 @@ function parseQueryString() {
     // TODO: Account for time drift
     var cycleLength = (delay * slides.length); // 4000
     var currentTime = Date.now() % cycleLength; // 3005
-    var nextTime = (activeSlideNum + 1) * delay; // 4000
+    var nextTime = (currentSlideNum + 1) * delay; // 4000
 
     setTimeout(nextSlide, nextTime - currentTime);
   }
@@ -71,12 +80,12 @@ function parseQueryString() {
   }
 
   function init() {
+    var params = parseQueryString();
+
     // setup vars
-    params = parseQueryString();
-    console.log(params);
     slideToShow = parseInt(params.slideToShow, 10) || 0;
-    delay = params.delay || 1000;
-    activeSlideNum = 0;  // currently active slide
+    delay = parseInt(params.delay, 10) || 1000;
+    currentSlideNum = 0;  // currently active slide
     slides = document.querySelectorAll('.slides .slide');
 
     // synchonize watches and start show!
