@@ -1,0 +1,19 @@
+.slides {
+  border: 1px solid red;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+
+  .slide {
+    display: none;
+    font-size: 3em;
+  }
+  .slide.is-active {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
